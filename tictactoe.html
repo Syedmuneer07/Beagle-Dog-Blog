@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+	<link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 48px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #player-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        label {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        input {
+            padding: 12px 15px;
+            font-size: 16px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+            transform: scale(1.02);
+        }
+
+        #submit {
+            width: 100%;
+            border: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        #submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        #submit:active {
+            transform: translateY(0);
+        }
+
+        .game-board {
+            display: none;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .board.disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 30px auto;
+            width: 400px;
+			max-width: 370px;
+			background-color: rgb(255, 255, 255);
+			border-radius: 12px;
+			box-shadow: 0 20px 60px rgba(0, 1, 1, 0.3);
+            
+            padding: 20px;
+            
+           
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: grid;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 12px;
+            color: white;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            user-select: none;
+        }
+
+        .cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .cell:active {
+            transform: scale(0.95);
+        }
+
+        .cell.x {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .cell.o {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .message {
+            font-size: 22px;
+            text-align: center;
+            color: white;
+            font-weight: 700;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            animation: pulse 0.5s ease;
+        }
+
+        @keyframes pulse {
+            from {
+                opacity: 0.8;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .reset-btn {
+            width: 100%;
+            display: none;
+            border: none;
+            background: #ff6b6b;
+            color: white;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .reset-btn:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .undo-btn {
+            flex: 1;
+            display: none;
+            border: none;
+            background: #ffa500;
+            color: white;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .undo-btn:hover:not(:disabled) {
+            background: #ff8c00;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 165, 0, 0.4);
+        }
+
+        .undo-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .reset-btn {
+            flex: 1;
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 36px;
+                margin-bottom: 20px;
+            }
+
+            #player-form {
+                padding: 30px;
+                gap: 12px;
+            }
+
+            .cell {
+                width: 85px;
+                height: 85px;
+                font-size: 40px;
+            }
+
+            .message {
+                font-size: 18px;
+                padding: 12px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+	<!-- the entire body must be written by student -->
+	<div class="container">
+		<h1>🎮 Tic Tac Toe</h1>
+		
+		<div id="player-form">
+			<label>
+				👤 Player 1
+				<input type="text" id="player1" placeholder="Enter your name">
+			</label>
+			<label>
+				👤 Player 2
+				<input type="text" id="player2" placeholder="Enter your name">
+			</label>
+			<button id="submit" type="submit">Start Game 🚀</button>
+		</div>
+
+		<div class="game-board">
+			<div class="message"></div>
+			<div class="board disabled">
+				<div class="cell" id="1"></div>
+				<div class="cell" id="2"></div>
+				<div class="cell" id="3"></div>
+				<div class="cell" id="4"></div>
+				<div class="cell" id="5"></div>
+				<div class="cell" id="6"></div>
+				<div class="cell" id="7"></div>
+				<div class="cell" id="8"></div>
+				<div class="cell" id="9"></div>
+			</div>
+			<div class="button-group">
+				<button class="undo-btn" id="undo">↶ Undo</button>
+				<button class="reset-btn" id="reset">Play Again 🔄</button>
+			</div>
+		</div>
+	</div>
+	
+    <script>
+        const submitBtn = document.getElementById("submit");
+        const resetBtn = document.getElementById("reset");
+        const undoBtn = document.getElementById("undo");
+        const playerForm = document.getElementById("player-form");
+        const gameBoard = document.querySelector(".game-board");
+        const message = document.querySelector(".message");
+        const cells = document.querySelectorAll(".cell");
+
+        let player1 = "";
+        let player2 = "";
+        let currentPlayer = "";
+        let currentMark = "x";
+        let gameActive = true;
+        let moveHistory = [];
+
+        const winningCombination = [
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 9],
+            [1, 4, 7],
+            [2, 5, 8],
+            [3, 6, 9],
+            [3, 5, 7],
+            [1, 5, 9]
+        ];
+
+        submitBtn.addEventListener("click", startGame);
+        resetBtn.addEventListener("click", resetGame);
+        undoBtn.addEventListener("click", undoMove);
+
+        function startGame() {
+            player1 = document.getElementById("player1").value;
+            player2 = document.getElementById("player2").value;
+
+            if (player1 === "" || player2 === "") {
+                alert("⚠️ Please enter both player names!");
+                return;
+            }
+
+            currentPlayer = player1;
+            currentMark = "x";
+            gameActive = true;
+            moveHistory = [];
+
+            message.innerText = `🎯 ${currentPlayer}'s Turn (X)`;
+
+            playerForm.style.display = "none";
+            gameBoard.style.display = "block";
+            resetBtn.style.display = "none";
+            undoBtn.style.display = "none";
+
+            document.querySelector(".board").classList.remove("disabled");
+
+            cells.forEach(cell => {
+                cell.innerText = "";
+                cell.className = "cell";
+            });
+        }
+
+        function resetGame() {
+            currentPlayer = player1;
+            currentMark = "x";
+            gameActive = true;
+            moveHistory = [];
+
+            message.innerText = `🎯 ${currentPlayer}'s Turn (X)`;
+            resetBtn.style.display = "none";
+            undoBtn.style.display = "none";
+
+            document.querySelector(".board").classList.remove("disabled");
+
+            cells.forEach(cell => {
+                cell.innerText = "";
+                cell.className = "cell";
+            });
+        }
+
+        cells.forEach(cell => {
+            cell.addEventListener("click", function() {
+                if (this.innerText !== "" || !gameActive) return;
+
+                // Record move in history
+                moveHistory.push({
+                    cellId: this.id,
+                    mark: currentMark,
+                    player: currentPlayer
+                });
+
+                this.innerText = currentMark;
+                this.classList.add(currentMark);
+
+                // Show undo button
+                undoBtn.style.display = "block";
+
+                if (checkWinner()) {
+                    message.innerText = `🎉 ${currentPlayer} Wins! Congratulations!`;
+                    gameActive = false;
+                    resetBtn.style.display = "block";
+                    undoBtn.style.display = "none";
+                    document.querySelector(".board").classList.add("disabled");
+                    return;
+                }
+
+                if (isBoardFull()) {
+                    message.innerText = `🤝 It's a Draw!`;
+                    gameActive = false;
+                    resetBtn.style.display = "block";
+                    undoBtn.style.display = "none";
+                    return;
+                }
+
+                switchPlayer();
+            });
+        });
+
+        function switchPlayer() {
+            if (currentPlayer === player1) {
+                currentPlayer = player2;
+                currentMark = "o";
+                message.innerText = `🎯 ${currentPlayer}'s Turn (O)`;
+            } else {
+                currentPlayer = player1;
+                currentMark = "x";
+                message.innerText = `🎯 ${currentPlayer}'s Turn (X)`;
+            }
+        }
+
+        function checkWinner() {
+            return winningCombination.some(combination => {
+                return combination.every(index => {
+                    return document.getElementById(index).innerText === currentMark;
+                });
+            });
+        }
+
+        function isBoardFull() {
+            return Array.from(cells).every(cell => cell.innerText !== "");
+        }
+
+        function undoMove() {
+            if (moveHistory.length === 0 || !gameActive) return;
+
+            const lastMove = moveHistory.pop();
+            const cellToUndo = document.getElementById(lastMove.cellId);
+
+            cellToUndo.innerText = "";
+            cellToUndo.classList.remove("x", "o");
+
+            // Revert to previous player
+            if (currentPlayer === player1) {
+                currentPlayer = player2;
+                currentMark = "o";
+                message.innerText = `🎯 ${currentPlayer}'s Turn (O)`;
+            } else {
+                currentPlayer = player1;
+                currentMark = "x";
+                message.innerText = `🎯 ${currentPlayer}'s Turn (X)`;
+            }
+
+            // Hide undo button if no more moves to undo
+            if (moveHistory.length === 0) {
+                undoBtn.style.display = "none";
+            }
+        }
+
+        // Add keyboard support
+        document.addEventListener("keydown", function(e) {
+            if (e.key >= "1" && e.key <= "9") {
+                const cell = document.getElementById(e.key);
+                if (cell && cell.innerText === "") {
+                    cell.click();
+                }
+            }
+            if (e.key === "z" && e.ctrlKey) {
+                e.preventDefault();
+                undoMove();
+            }
+        });
+    </script>
+
+</body>
+
+</html>
